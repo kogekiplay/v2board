@@ -3,6 +3,8 @@
 namespace App\Protocols;
 
 
+use App\Utils\Helper;
+
 class Passwall
 {
     public $flag = 'passwall';
@@ -24,6 +26,9 @@ class Passwall
         foreach ($servers as $item) {
             if ($item['type'] === 'vmess') {
                 $uri .= self::buildVmess($user['uuid'], $item);
+            }
+            if ($item['type'] === 'vless') {
+                $uri .= self::buildVless($user['uuid'], $item);
             }
             if ($item['type'] === 'shadowsocks') {
                 $uri .= self::buildShadowsocks($user['uuid'], $item);
@@ -83,6 +88,33 @@ class Passwall
             if (isset($grpcSettings['serviceName'])) $config['path'] = $grpcSettings['serviceName'];
         }
         return "vmess://" . base64_encode(json_encode($config)) . "\r\n";
+    }
+
+    public static function buildVless($uuid, $server)
+    {
+        $id = !empty($server['parent_id']) ? $server['parent_id'] : $server['id'];
+        $publicKey = !empty($server['tlsSettings']['public_key'])
+            ? $server['tlsSettings']['public_key']
+            : Helper::buildPublicKey($id);
+
+        $config = [
+            "add" => $server['host'],
+            "port" => (string)$server['port'],
+            "security" => ((int)$server['tls'] === 2) ? "reality" : "",
+            "type" => $server['network'],
+            "encryption" => "none",
+            "flow" => !empty($server['flow']) ? $server['flow'] : "",
+            "pbk" => ((int)$server['tls'] === 2) ? $publicKey : "",
+            "sni" => !empty($server['tlsSettings']['serverName']) ? $server['tlsSettings']['serverName'] : "",
+            "fp" => "chrome",
+            "sid" => Helper::buildShortID($id)
+        ];
+
+        $output = "vless://" . $uuid . "@" . $config['add'] . ":" . $config['port'];
+        $output .= "?" . http_build_query($config);
+        $output .= "#" . $server['name'];
+
+        return $output . "\r\n";
     }
 
     public static function buildTrojan($password, $server)

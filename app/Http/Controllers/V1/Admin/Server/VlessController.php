@@ -32,14 +32,7 @@ class VlessController extends Controller
         ]);
 
         if (isset($params['tls']) && (int)$params['tls'] === 2) {
-            $keyPair = SodiumCompat::crypto_box_keypair();
             $params['tls_settings'] = $params['tls_settings'] ?? [];
-            if (!isset($params['tls_settings']['public_key'])) {
-                $params['tls_settings']['public_key'] = Helper::base64EncodeUrlSafe(SodiumCompat::crypto_box_publickey($keyPair));
-            }
-            if (!isset($params['tls_settings']['private_key'])) {
-                $params['tls_settings']['private_key'] = Helper::base64EncodeUrlSafe(SodiumCompat::crypto_box_secretkey($keyPair));
-            }
         }
 
         if ($request->input('id')) {

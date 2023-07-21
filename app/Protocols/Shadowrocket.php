@@ -35,6 +35,9 @@ class Shadowrocket
             if ($item['type'] === 'vmess') {
                 $uri .= self::buildVmess($user['uuid'], $item);
             }
+            if ($item['type'] === 'vless') {
+                $uri .= self::buildVless($user['uuid'], $item);
+            }
             if ($item['type'] === 'trojan') {
                 $uri .= self::buildTrojan($user['uuid'], $item);
             }
@@ -116,6 +119,40 @@ class Shadowrocket
         }
         $query = http_build_query($config, '', '&', PHP_QUERY_RFC3986);
         $uri = "vmess://{$userinfo}?{$query}";
+        $uri .= "\r\n";
+        return $uri;
+    }
+
+
+
+    public static function buildVless($uuid, $server)
+    {
+        $id = !empty($server['parent_id']) ? $server['parent_id'] : $server['id'];
+        $publicKey = !empty($server['tlsSettings']['public_key'])
+            ? $server['tlsSettings']['public_key']
+            : Helper::buildPublicKey($id);
+        $userinfo = base64_encode('auto:' . $uuid . '@' . $server['host'] . ':' . $server['port']);
+        $config = [
+            'tfo' => 1,
+            'remark' => $server['name'],
+            'xtls' => ((int)$server['tls']),
+            'pbk' => ((int)$server['tls'] === 2) ? $publicKey : "",
+            'sid' => Helper::buildShortID($id),
+        ];
+        if ($server['tls']) {
+            $config['tls'] = 1;
+            if ($server['tlsSettings']) {
+                $tlsSettings = $server['tlsSettings'];
+                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
+                    $config['allowInsecure'] = (int)$tlsSettings['allowInsecure'];
+                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
+                    $config['peer'] = $tlsSettings['serverName'];
+            }
+        }
+
+
+        $query = http_build_query($config, '', '&', PHP_QUERY_RFC3986);
+        $uri = "vless://{$userinfo}?{$query}";
         $uri .= "\r\n";
         return $uri;
     }

@@ -44,6 +44,10 @@ class ClashMeta
                 array_push($proxy, self::buildVmess($user['uuid'], $item));
                 array_push($proxies, $item['name']);
             }
+            if ($item['type'] === 'vless') {
+                array_push($proxy, self::buildVless($user['uuid'], $item));
+                array_push($proxies, $item['name']);
+            }
             if ($item['type'] === 'trojan') {
                 array_push($proxy, self::buildTrojan($user['uuid'], $item));
                 array_push($proxies, $item['name']);
@@ -157,6 +161,41 @@ class ClashMeta
             }
         }
 
+        return $array;
+    }
+
+    public static function buildVless($uuid, $server)
+    {
+        $array = [];
+        $array['name'] = $server['name'];
+        $array['type'] = 'vless';
+        $array['server'] = $server['host'];
+        $array['port'] = $server['port'];
+        $array['uuid'] = $uuid;
+        $array['udp'] = true;
+        $array['xudp'] = true;
+        $array['flow'] = !empty($server['flow']) ? $server['flow']: "";
+        if ($server['tls']) {
+            $array['tls'] = true;
+            if ($server['tlsSettings']) {
+                $tlsSettings = $server['tlsSettings'];
+                if (!empty($tlsSettings['allowInsecure']))
+                    $array['skip-cert-verify'] = (bool)$tlsSettings['allowInsecure'];
+                if (!empty($tlsSettings['serverName']))
+                    $array['servername'] = $tlsSettings['serverName'];
+                if ((int)$server['tls'] === 2) {
+                    $id = !empty($server['parent_id']) ? $server['parent_id'] : $server['id'];
+                    $publicKey = !empty($tlsSettings['public_key'])
+                        ? $tlsSettings['public_key']
+                        : Helper::buildPublicKey($id);
+                    $array['reality-opts'] = [
+                        'public-key' => $publicKey,
+                        'short-id' => Helper::buildShortID($id)
+                    ];
+                    $array['client-fingerprint'] = 'chrome';
+                }
+            }
+        }
         return $array;
     }
 
