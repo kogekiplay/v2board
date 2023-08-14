@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    CONST STR_TO_TIME = [
+    const STR_TO_TIME = [
         'month_price' => 1,
         'quarter_price' => 3,
         'half_year_price' => 6,
@@ -118,7 +118,7 @@ class OrderService
         $order->total_amount = $order->total_amount - $order->discount_amount;
     }
 
-    public function setInvite(User $user):void
+    public function setInvite(User $user): void
     {
         $order = $this->order;
         if ($user->invite_user_id && ($order->total_amount <= 0)) return;
@@ -190,26 +190,28 @@ class OrderService
             ->where('period', '!=', 'reset_price')
             ->where('period', '!=', 'onetime_price')
             ->where('status', 3)
+            ->latest()
             ->get()
             ->toArray();
         if (!$orders) return;
         $orderAmountSum = 0;
         $orderMonthSum = 0;
         $lastValidateAt = 0;
+        $expiredTime = $user->expired_at;
         foreach ($orders as $item) {
             $period = self::STR_TO_TIME[$item['period']];
-            if (strtotime("+{$period} month", $item['created_at']) < time()) continue;
             $lastValidateAt = $item['created_at'];
             $orderMonthSum = $period + $orderMonthSum;
             $orderAmountSum = $orderAmountSum + ($item['total_amount'] + $item['balance_amount'] + $item['surplus_amount'] - $item['refund_amount']);
+            $expiredTime = strtotime("-{$period} month", $expiredTime);
+            if ($expiredTime <= time()) break;
         }
-        if (!$lastValidateAt) return;
-        $expiredAtByOrder = strtotime("+{$orderMonthSum} month", $lastValidateAt);
+        $expiredAtByOrder = $user->expired_at;
         if ($expiredAtByOrder < time()) return;
         $orderSurplusSecond = $expiredAtByOrder - time();
         $orderRangeSecond = $expiredAtByOrder - $lastValidateAt;
         $avgPrice = $orderAmountSum / $orderRangeSecond;
-        $orderSurplusAmount = $avgPrice * $orderSurplusSecond;
+        $orderSurplusAmount = $avgPrice * $orderSurplusSecond-10;
         if (!$orderSurplusSecond || !$orderSurplusAmount) return;
         $order->surplus_amount = $orderSurplusAmount > 0 ? $orderSurplusAmount : 0;
         $order->surplus_order_ids = array_column($orders, 'id');
@@ -231,7 +233,7 @@ class OrderService
         return true;
     }
 
-    public function cancel():bool
+    public function cancel(): bool
     {
         $order = $this->order;
         DB::beginTransaction();
@@ -310,7 +312,7 @@ class OrderService
 
     private function openEvent($eventId)
     {
-        switch ((int) $eventId) {
+        switch ((int)$eventId) {
             case 0:
                 break;
             case 1:
