@@ -103,7 +103,7 @@ class StatController extends Controller
             'trojan' => ServerTrojan::where('parent_id', null)->get()->toArray(),
             'vmess' => ServerVmess::where('parent_id', null)->get()->toArray(),
             'vless' => ServerVless::where('parent_id', null)->get()->toArray(),
-            'hysteria' => ServerHysteria::where('parent_id', null)->get()->toArray(),
+            'hysteria' => ServerHysteria::where('parent_id', null)->get()->toArray()
         ];
         $startAt = strtotime('-1 day', strtotime(date('Y-m-d')));
         $endAt = strtotime(date('Y-m-d'));

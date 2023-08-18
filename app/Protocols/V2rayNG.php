@@ -67,24 +67,24 @@ class V2rayNG
             "tls" => $server['tls'] ? "tls" : "",
         ];
         if ($server['tls']) {
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $config['sni'] = $tlsSettings['serverName'];
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (isset($tls_settings['serverName']) && !empty($tls_settings['serverName']))
+                    $config['sni'] = $tls_settings['serverName'];
             }
         }
         if ((string)$server['network'] === 'tcp') {
-            $tcpSettings = $server['networkSettings'];
+            $tcpSettings = $server['network_settings'];
             if (isset($tcpSettings['header']['type'])) $config['type'] = $tcpSettings['header']['type'];
             if (isset($tcpSettings['header']['request']['path'][0])) $config['path'] = $tcpSettings['header']['request']['path'][0];
         }
         if ((string)$server['network'] === 'ws') {
-            $wsSettings = $server['networkSettings'];
+            $wsSettings = $server['network_settings'];
             if (isset($wsSettings['path'])) $config['path'] = $wsSettings['path'];
             if (isset($wsSettings['headers']['Host'])) $config['host'] = $wsSettings['headers']['Host'];
         }
         if ((string)$server['network'] === 'grpc') {
-            $grpcSettings = $server['networkSettings'];
+            $grpcSettings = $server['network_settings'];
             if (isset($grpcSettings['serviceName'])) $config['path'] = $grpcSettings['serviceName'];
         }
         return "vmess://" . base64_encode(json_encode($config)) . "\r\n";
@@ -93,8 +93,8 @@ class V2rayNG
     public static function buildVless($uuid, $server)
     {
         $id = !empty($server['parent_id']) ? $server['parent_id'] : $server['id'];
-        $publicKey = !empty($server['tlsSettings']['public_key'])
-            ? $server['tlsSettings']['public_key']
+        $publicKey = !empty($server['tls_settings']['public_key'])
+            ? $server['tls_settings']['public_key']
             : Helper::buildPublicKey($id);
 
         $config = [
@@ -104,10 +104,10 @@ class V2rayNG
             "type" => $server['network'],
             "encryption" => "none",
             "flow" => !empty($server['flow']) ? $server['flow'] : "",
-            "pbk" => ((int)$server['tls'] === 2) ? $publicKey : "",
+            "pbk" => ((int)$server['tls'] === 2) ? $server['tlsSettings']['public_key'] : "",
             "sni" => !empty($server['tlsSettings']['serverName']) ? $server['tlsSettings']['serverName'] : "",
             "fp" => "chrome",
-            "sid" => Helper::buildShortID($id)
+            "sid" => ((int)$server['tls'] === 2) ? $server['tlsSettings']['short_id'] : "",
         ];
 
         $output = "vless://" . $uuid . "@" . $config['add'] . ":" . $config['port'];

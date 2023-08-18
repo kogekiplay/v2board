@@ -117,23 +117,23 @@ class Stash
 
         if ($server['tls']) {
             $array['tls'] = true;
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    $array['skip-cert-verify'] = ($tlsSettings['allowInsecure'] ? true : false);
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (isset($tls_settings['allowInsecure']) && !empty($tls_settings['allowInsecure']))
+                    $array['skip-cert-verify'] = ($tls_settings['allowInsecure'] ? true : false);
                 if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
                     $array['servername'] = $tlsSettings['serverName'];
             }
         }
         if ($server['network'] === 'tcp') {
-            $tcpSettings = $server['networkSettings'];
+            $tcpSettings = $server['network_settings'];
             if (isset($tcpSettings['header']['type'])) $array['network'] = $tcpSettings['header']['type'];
             if (isset($tcpSettings['header']['request']['path'][0])) $array['http-opts']['path'] = $tcpSettings['header']['request']['path'][0];
         }
         if ($server['network'] === 'ws') {
             $array['network'] = 'ws';
-            if ($server['networkSettings']) {
-                $wsSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $wsSettings = $server['network_settings'];
                 $array['ws-opts'] = [];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     $array['ws-opts']['path'] = $wsSettings['path'];
@@ -147,8 +147,8 @@ class Stash
         }
         if ($server['network'] === 'grpc') {
             $array['network'] = 'grpc';
-            if ($server['networkSettings']) {
-                $grpcSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $grpcSettings = $server['network_settings'];
                 $array['grpc-opts'] = [];
                 if (isset($grpcSettings['serviceName']))  $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
             }

@@ -66,24 +66,24 @@ class SagerNet
             "security" => $server['tls'] ? "tls" : "",
         ];
         if ($server['tls']) {
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $config['sni'] = urlencode($tlsSettings['serverName']);
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (isset($tls_settings['serverName']) && !empty($tls_settings['serverName']))
+                    $config['sni'] = urlencode($tls_settings['serverName']);
             }
         }
         if ((string)$server['network'] === 'tcp') {
-            $tcpSettings = $server['networkSettings'];
+            $tcpSettings = $server['network_settings'];
             if (isset($tcpSettings['header']['type'])) $config['type'] = $tcpSettings['header']['type'];
             if (isset($tcpSettings['header']['request']['path'][0])) $config['path'] = $tcpSettings['header']['request']['path'][0];
         }
         if ((string)$server['network'] === 'ws') {
-            $wsSettings = $server['networkSettings'];
+            $wsSettings = $server['network_settings'];
             if (isset($wsSettings['path'])) $config['path'] = $wsSettings['path'];
             if (isset($wsSettings['headers']['Host'])) $config['host'] = urlencode($wsSettings['headers']['Host']);
         }
         if ((string)$server['network'] === 'grpc') {
-            $grpcSettings = $server['networkSettings'];
+            $grpcSettings = $server['network_settings'];
             if (isset($grpcSettings['serviceName'])) $config['serviceName'] = urlencode($grpcSettings['serviceName']);
         }
         return "vmess://" . $uuid . "@" . $server['host'] . ":" . $server['port'] . "?" . http_build_query($config) . "#" . urlencode($server['name']) . "\r\n";

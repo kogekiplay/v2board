@@ -14,10 +14,8 @@ class ServerVmess extends Model
         'updated_at' => 'timestamp',
         'group_id' => 'array',
         'route_id' => 'array',
-        'tlsSettings' => 'array',
-        'networkSettings' => 'array',
-        'dnsSettings' => 'array',
-        'ruleSettings' => 'array',
+        'tls_settings' => 'array',
+        'network_settings' => 'array',
         'tags' => 'array'
     ];
 }

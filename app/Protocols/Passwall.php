@@ -74,17 +74,17 @@ class Passwall
             }
         }
         if ((string)$server['network'] === 'tcp') {
-            $tcpSettings = $server['networkSettings'];
+            $tcpSettings = $server['network_settings'];
             if (isset($tcpSettings['header']['type'])) $config['type'] = $tcpSettings['header']['type'];
             if (isset($tcpSettings['header']['request']['path'][0])) $config['path'] = $tcpSettings['header']['request']['path'][0];
         }
         if ((string)$server['network'] === 'ws') {
-            $wsSettings = $server['networkSettings'];
+            $wsSettings = $server['network_settings'];
             if (isset($wsSettings['path'])) $config['path'] = $wsSettings['path'];
             if (isset($wsSettings['headers']['Host'])) $config['host'] = $wsSettings['headers']['Host'];
         }
         if ((string)$server['network'] === 'grpc') {
-            $grpcSettings = $server['networkSettings'];
+            $grpcSettings = $server['network_settings'];
             if (isset($grpcSettings['serviceName'])) $config['path'] = $grpcSettings['serviceName'];
         }
         return "vmess://" . base64_encode(json_encode($config)) . "\r\n";

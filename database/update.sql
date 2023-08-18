@@ -168,23 +168,23 @@ ALTER TABLE `v2_tutorial`
 DROP `icon`;
 
 ALTER TABLE `v2_server`
-CHANGE `settings` `networkSettings` text COLLATE 'utf8_general_ci' NULL AFTER `network`,
-CHANGE `rules` `ruleSettings` text COLLATE 'utf8_general_ci' NULL AFTER `networkSettings`;
+CHANGE `tlsSettings` `tls_settings` text COLLATE 'utf8_general_ci' NULL AFTER `network`,
+CHANGE `networkSettings` `network_settings` text COLLATE 'utf8_general_ci' NULL AFTER `tls_settings`;
 
 ALTER TABLE `v2_server`
 CHANGE `tags` `tags` varchar(255) COLLATE 'utf8_general_ci' NULL AFTER `server_port`,
 CHANGE `rate` `rate` varchar(11) COLLATE 'utf8_general_ci' NOT NULL AFTER `tags`,
 CHANGE `network` `network` varchar(11) COLLATE 'utf8_general_ci' NOT NULL AFTER `rate`,
-CHANGE `networkSettings` `networkSettings` text COLLATE 'utf8_general_ci' NULL AFTER `network`,
-CHANGE `tls` `tls` tinyint(4) NOT NULL DEFAULT '0' AFTER `networkSettings`,
-ADD `tlsSettings` text COLLATE 'utf8_general_ci' NULL AFTER `tls`;
+CHANGE `networkSettings` `network_settings` text COLLATE 'utf8_general_ci' NULL AFTER `network`,
+CHANGE `tls` `tls` tinyint(4) NOT NULL DEFAULT '0' AFTER `network_settings`,
+ADD `tls_settings` text COLLATE 'utf8_general_ci' NULL AFTER `tls`;
 
 ALTER TABLE `v2_order`
 ADD `balance_amount` int(11) NULL COMMENT '使用余额' AFTER `refund_amount`;
 
 ALTER TABLE `v2_server`
-CHANGE `network` `network` text COLLATE 'utf8_general_ci' NOT NULL AFTER `rate`,
-ADD `dnsSettings` text COLLATE 'utf8_general_ci' NULL AFTER `ruleSettings`;
+DROP COLUMN `dnsSettings`,
+DROP COLUMN `ruleSettings`;
 
 ALTER TABLE `v2_order`
 ADD `surplus_order_ids` text NULL COMMENT '折抵订单' AFTER `balance_amount`;

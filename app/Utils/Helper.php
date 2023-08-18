@@ -121,9 +121,9 @@ class Helper
         return rand($portRange[0], $portRange[1]);
     }
 
-    public static function buildPublicKey($id)
+    public static function buildPublicKey()
     {
-        $key = $id . 'v2ray' . config('v2board.server_token');
+        $key = 'vless' . config('v2board.server_token');
         $key = hash('sha256', $key, true);
         $key[0] = chr(ord($key[0]) & 248);
         $key[31] = chr((ord($key[31]) & 127) | 64);
@@ -133,9 +133,9 @@ class Helper
         return  $publicKeyBase64;
     }
 
-    public static function buildShortID($id)
+    public static function buildShortID()
     {
-        $data = $id . 'v2ray';
+        $data = 'vless';
         $hash = hash('sha256', $data, true);
         return substr(bin2hex($hash), 0, 16);
     }

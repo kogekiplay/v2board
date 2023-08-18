@@ -76,8 +76,8 @@ class Loon
 
         if ($server['network'] === 'tcp') {
             array_push($config, 'transport=tcp');
-            if ($server['networkSettings']) {
-                $tcpSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $tcpSettings = $server['network_settings'];
                 if (isset($tcpSettings['header']['type']) && !empty($tcpSettings['header']['type']))
                     $config = str_replace('transport=tcp', "transport={$tcpSettings['header']['type']}", $config);
                 if (isset($tcpSettings['header']['request']['path'][0]) && !empty($tcpSettings['header']['request']['path'][0]))
@@ -89,18 +89,18 @@ class Loon
         if ($server['tls']) {
             if ($server['network'] === 'tcp')
                 array_push($config, 'over-tls=true');
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    array_push($config, 'skip-cert-verify=' . ($tlsSettings['allowInsecure'] ? 'true' : 'false'));
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    array_push($config, "tls-name={$tlsSettings['serverName']}");
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (isset($tls_settings['allowInsecure']) && !empty($tls_settings['allowInsecure']))
+                    array_push($config, 'skip-cert-verify=' . ($tls_settings['allowInsecure'] ? 'true' : 'false'));
+                if (isset($tls_settings['serverName']) && !empty($tls_settings['serverName']))
+                    array_push($config, "tls-name={$tls_settings['serverName']}");
             }
         }
         if ($server['network'] === 'ws') {
             array_push($config, 'transport=ws');
-            if ($server['networkSettings']) {
-                $wsSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $wsSettings = $server['network_settings'];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     array_push($config, "path={$wsSettings['path']}");
                 if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))

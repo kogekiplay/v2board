@@ -77,17 +77,17 @@ class Shadowrocket
         ];
         if ($server['tls']) {
             $config['tls'] = 1;
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    $config['allowInsecure'] = (int)$tlsSettings['allowInsecure'];
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $config['peer'] = $tlsSettings['serverName'];
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (isset($tls_settings['allowInsecure']) && !empty($tls_settings['allowInsecure']))
+                    $config['allowInsecure'] = (int)$tls_settings['allowInsecure'];
+                if (isset($tls_settings['serverName']) && !empty($tls_settings['serverName']))
+                    $config['peer'] = $tls_settings['serverName'];
             }
         }
         if ($server['network'] === 'tcp') {
-            if ($server['networkSettings']) {
-                $tcpSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $tcpSettings = $server['network_settings'];
                 if (isset($tcpSettings['header']['type']) && !empty($tcpSettings['header']['type']))
                     $config['obfs'] = $tcpSettings['header']['type'];
                 if (isset($tcpSettings['header']['request']['path'][0]) && !empty($tcpSettings['header']['request']['path'][0]))
@@ -96,8 +96,8 @@ class Shadowrocket
         }
         if ($server['network'] === 'ws') {
             $config['obfs'] = "websocket";
-            if ($server['networkSettings']) {
-                $wsSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $wsSettings = $server['network_settings'];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     $config['path'] = $wsSettings['path'];
                 if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
@@ -106,13 +106,13 @@ class Shadowrocket
         }
         if ($server['network'] === 'grpc') {
             $config['obfs'] = "grpc";
-            if ($server['networkSettings']) {
-                $grpcSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $grpcSettings = $server['network_settings'];
                 if (isset($grpcSettings['serviceName']) && !empty($grpcSettings['serviceName']))
                     $config['path'] = $grpcSettings['serviceName'];
             }
-            if (isset($tlsSettings)) {
-                $config['host'] = $tlsSettings['serverName'];
+            if (isset($tls_settings)) {
+                $config['host'] = $tls_settings['serverName'];
             } else {
                 $config['host'] = $server['host'];
             }
@@ -127,26 +127,22 @@ class Shadowrocket
 
     public static function buildVless($uuid, $server)
     {
-        $id = !empty($server['parent_id']) ? $server['parent_id'] : $server['id'];
-        $publicKey = !empty($server['tlsSettings']['public_key'])
-            ? $server['tlsSettings']['public_key']
-            : Helper::buildPublicKey($id);
         $userinfo = base64_encode('auto:' . $uuid . '@' . $server['host'] . ':' . $server['port']);
         $config = [
             'tfo' => 1,
             'remark' => $server['name'],
             'xtls' => ((int)$server['tls']),
-            'pbk' => ((int)$server['tls'] === 2) ? $publicKey : "",
-            'sid' => Helper::buildShortID($id),
+            'pbk' => ((int)$server['tls'] === 2) ? $server['tls_settings']['public_key'] : "",
+            'sid' => $server['tls_settings']['short_id'],
         ];
         if ($server['tls']) {
             $config['tls'] = 1;
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    $config['allowInsecure'] = (int)$tlsSettings['allowInsecure'];
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $config['peer'] = $tlsSettings['serverName'];
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (!empty($tls_settings['allowInsecure']))
+                    $config['allowInsecure'] = (int)$tls_settings['allowInsecure'];
+                if (!empty($tls_settings['server_name']))
+                    $config['peer'] = $tls_settings['server_name'];
             }
         }
 

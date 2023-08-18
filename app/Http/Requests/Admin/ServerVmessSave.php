@@ -23,13 +23,12 @@ class ServerVmessSave extends FormRequest
             'port' => 'required',
             'server_port' => 'required',
             'tls' => 'required',
+            'tls_settings' => 'nullable|array',
             'tags' => 'nullable|array',
             'rate' => 'required|numeric',
             'network' => 'required|in:tcp,kcp,ws,http,domainsocket,quic,grpc',
-            'networkSettings' => 'nullable|array',
-            'ruleSettings' => 'nullable|array',
-            'tlsSettings' => 'nullable|array',
-            'dnsSettings' => 'nullable|array'
+            'network_settings' => 'nullable|array'
+
         ];
     }
 
@@ -45,15 +44,13 @@ class ServerVmessSave extends FormRequest
             'port.required' => '连接端口不能为空',
             'server_port.required' => '后端服务端口不能为空',
             'tls.required' => 'TLS不能为空',
+            'tls_settings.array' => 'tls配置有误',
             'tags.array' => '标签格式不正确',
             'rate.required' => '倍率不能为空',
             'rate.numeric' => '倍率格式不正确',
             'network.required' => '传输协议不能为空',
             'network.in' => '传输协议格式不正确',
-            'networkSettings.array' => '传输协议配置有误',
-            'ruleSettings.array' => '规则配置有误',
-            'tlsSettings.array' => 'tls配置有误',
-            'dnsSettings.array' => 'dns配置有误'
+            'network_settings.array' => '传输协议配置有误'
         ];
     }
 }

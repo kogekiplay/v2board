@@ -124,23 +124,23 @@ class ClashMeta
 
         if ($server['tls']) {
             $array['tls'] = true;
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    $array['skip-cert-verify'] = ($tlsSettings['allowInsecure'] ? true : false);
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $array['servername'] = $tlsSettings['serverName'];
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (isset($tls_settings['allowInsecure']) && !empty($tls_settings['allowInsecure']))
+                    $array['skip-cert-verify'] = ($tls_settings['allowInsecure'] ? true : false);
+                if (isset($tls_settings['serverName']) && !empty($tls_settings['serverName']))
+                    $array['servername'] = $tls_settings['serverName'];
             }
         }
         if ($server['network'] === 'tcp') {
-            $tcpSettings = $server['networkSettings'];
+            $tcpSettings = $server['network_settings'];
             if (isset($tcpSettings['header']['type'])) $array['network'] = $tcpSettings['header']['type'];
             if (isset($tcpSettings['header']['request']['path'][0])) $array['http-opts']['path'] = $tcpSettings['header']['request']['path'][0];
         }
         if ($server['network'] === 'ws') {
             $array['network'] = 'ws';
-            if ($server['networkSettings']) {
-                $wsSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $wsSettings = $server['network_settings'];
                 $array['ws-opts'] = [];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     $array['ws-opts']['path'] = $wsSettings['path'];
@@ -154,8 +154,8 @@ class ClashMeta
         }
         if ($server['network'] === 'grpc') {
             $array['network'] = 'grpc';
-            if ($server['networkSettings']) {
-                $grpcSettings = $server['networkSettings'];
+            if ($server['network_settings']) {
+                $grpcSettings = $server['network_settings'];
                 $array['grpc-opts'] = [];
                 if (isset($grpcSettings['serviceName'])) $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
             }
@@ -177,20 +177,18 @@ class ClashMeta
         $array['flow'] = !empty($server['flow']) ? $server['flow']: "";
         if ($server['tls']) {
             $array['tls'] = true;
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (!empty($tlsSettings['allowInsecure']))
-                    $array['skip-cert-verify'] = (bool)$tlsSettings['allowInsecure'];
-                if (!empty($tlsSettings['serverName']))
-                    $array['servername'] = $tlsSettings['serverName'];
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (!empty($tls_settings['allowInsecure']))
+                    $array['skip-cert-verify'] = (bool)$tls_settings['allowInsecure'];
+                if (!empty($tls_settings['server_name']))
+                    $array['servername'] = $tls_settings['server_name'];
                 if ((int)$server['tls'] === 2) {
-                    $id = !empty($server['parent_id']) ? $server['parent_id'] : $server['id'];
-                    $publicKey = !empty($tlsSettings['public_key'])
-                        ? $tlsSettings['public_key']
-                        : Helper::buildPublicKey($id);
+                    $publicKey = $tls_settings['public_key'];
+                    $shortID = $tls_settings['short_id'];
                     $array['reality-opts'] = [
                         'public-key' => $publicKey,
-                        'short-id' => Helper::buildShortID($id)
+                        'short-id' => $shortID
                     ];
                     $array['client-fingerprint'] = 'chrome';
                 }

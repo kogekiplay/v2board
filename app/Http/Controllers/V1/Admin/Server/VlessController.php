@@ -33,6 +33,8 @@ class VlessController extends Controller
 
         if (isset($params['tls']) && (int)$params['tls'] === 2) {
             $params['tls_settings'] = $params['tls_settings'] ?? [];
+            $params['tls_settings']['public_key'] = $params['tls_settings']['public_key'] ?? Helper::buildPublicKey();
+            $params['tls_settings']['short_id'] = $params['tls_settings']['short_id'] ?? Helper::buildShortID();
         }
 
         if ($request->input('id')) {

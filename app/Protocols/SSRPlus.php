@@ -62,19 +62,19 @@ class SSRPlus
             "tls" => $server['tls'] ? "tls" : "",
         ];
         if ($server['tls']) {
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $config['sni'] = $tlsSettings['serverName'];
+            if ($server['tls_settings']) {
+                $tls_settings = $server['tls_settings'];
+                if (isset($tls_settings['serverName']) && !empty($tls_settings['serverName']))
+                    $config['sni'] = $tls_settings['serverName'];
             }
         }
         if ((string)$server['network'] === 'ws') {
-            $wsSettings = $server['networkSettings'];
+            $wsSettings = $server['network_settings'];
             if (isset($wsSettings['path'])) $config['path'] = $wsSettings['path'];
             if (isset($wsSettings['headers']['Host'])) $config['host'] = $wsSettings['headers']['Host'];
         }
         if ((string)$server['network'] === 'grpc') {
-            $grpcSettings = $server['networkSettings'];
+            $grpcSettings = $server['network_settings'];
             if (isset($grpcSettings['serviceName'])) $config['path'] = $grpcSettings['serviceName'];
         }
         return "vmess://" . base64_encode(json_encode($config)) . "\r\n";

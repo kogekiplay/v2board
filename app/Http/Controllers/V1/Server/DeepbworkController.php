@@ -143,28 +143,28 @@ class DeepbworkController extends Controller
 
     private function setNetwork(ServerVmess $server, object $json)
     {
-        if ($server->networkSettings) {
+        if ($server->network_settings) {
             switch ($server->network) {
                 case 'tcp':
-                    $json->inbounds[0]->streamSettings->tcpSettings = $server->networkSettings;
+                    $json->inbounds[0]->streamSettings->tcpSettings = $server->network_settings;
                     break;
                 case 'kcp':
-                    $json->inbounds[0]->streamSettings->kcpSettings = $server->networkSettings;
+                    $json->inbounds[0]->streamSettings->kcpSettings = $server->network_settings;
                     break;
                 case 'ws':
-                    $json->inbounds[0]->streamSettings->wsSettings = $server->networkSettings;
+                    $json->inbounds[0]->streamSettings->wsSettings = $server->network_settings;
                     break;
                 case 'http':
-                    $json->inbounds[0]->streamSettings->httpSettings = $server->networkSettings;
+                    $json->inbounds[0]->streamSettings->httpSettings = $server->network_settings;
                     break;
                 case 'domainsocket':
-                    $json->inbounds[0]->streamSettings->dsSettings = $server->networkSettings;
+                    $json->inbounds[0]->streamSettings->dsSettings = $server->network_settings;
                     break;
                 case 'quic':
-                    $json->inbounds[0]->streamSettings->quicSettings = $server->networkSettings;
+                    $json->inbounds[0]->streamSettings->quicSettings = $server->network_settings;
                     break;
                 case 'grpc':
-                    $json->inbounds[0]->streamSettings->grpcSettings = $server->networkSettings;
+                    $json->inbounds[0]->streamSettings->grpcSettings = $server->network_settings;
                     break;
             }
         }
@@ -213,18 +213,18 @@ class DeepbworkController extends Controller
     private function setTls(ServerVMess $server, object $json)
     {
         if ((int)$server->tls) {
-            $tlsSettings = $server->tlsSettings;
+            $tls_settings = $server->tls_settings;
             $json->inbounds[0]->streamSettings->security = 'tls';
             $tls = (object)[
                 'certificateFile' => '/root/.cert/server.crt',
                 'keyFile' => '/root/.cert/server.key'
             ];
-            $json->inbounds[0]->streamSettings->tlsSettings = new \StdClass();
-            if (isset($tlsSettings->serverName)) {
-                $json->inbounds[0]->streamSettings->tlsSettings->serverName = (string)$tlsSettings->serverName;
+            $json->inbounds[0]->streamSettings->tls_settings = new \StdClass();
+            if (isset($tls_settings->serverName)) {
+                $json->inbounds[0]->streamSettings->tls_settings->serverName = (string)$tls_settings->serverName;
             }
-            if (isset($tlsSettings->allowInsecure)) {
-                $json->inbounds[0]->streamSettings->tlsSettings->allowInsecure = (int)$tlsSettings->allowInsecure ? true : false;
+            if (isset($tls_settings->allowInsecure)) {
+                $json->inbounds[0]->streamSettings->tls_settings->allowInsecure = (int)$tlsSettings->allowInsecure ? true : false;
             }
             $json->inbounds[0]->streamSettings->tlsSettings->certificates[0] = $tls;
         }
