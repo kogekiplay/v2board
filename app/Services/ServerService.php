@@ -33,6 +33,12 @@ class ServerService
             } else {
                 $server[$key]['last_check_at'] = Cache::get(CacheKey::get('SERVER_VLESS_LAST_CHECK_AT', $server[$key]['id']));
             }
+
+            // delete private_key
+            if (isset($server[$key]['tls']) && (int)$server[$key]['tls'] === 2) {
+                $server[$key]['tls_settings']['private_key']=NULL;
+            }
+
             $servers[] = $server[$key]->toArray();
         }
 

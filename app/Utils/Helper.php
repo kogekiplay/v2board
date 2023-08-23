@@ -121,18 +121,6 @@ class Helper
         return rand($portRange[0], $portRange[1]);
     }
 
-    public static function buildPublicKey()
-    {
-        $key = 'vless' . config('v2board.server_token');
-        $key = hash('sha256', $key, true);
-        $key[0] = chr(ord($key[0]) & 248);
-        $key[31] = chr((ord($key[31]) & 127) | 64);
-        $key = substr($key, 0, 32);
-        $publicKey = sodium_crypto_box_publickey_from_secretkey($key);
-        $publicKeyBase64 = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($publicKey));
-        return  $publicKeyBase64;
-    }
-
     public static function buildShortID()
     {
         $data = 'vless';
