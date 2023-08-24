@@ -92,11 +92,6 @@ class V2rayNG
 
     public static function buildVless($uuid, $server)
     {
-        $id = !empty($server['parent_id']) ? $server['parent_id'] : $server['id'];
-        $publicKey = !empty($server['tls_settings']['public_key'])
-            ? $server['tls_settings']['public_key']
-            : Helper::buildPublicKey($id);
-
         $config = [
             "add" => $server['host'],
             "port" => (string)$server['port'],
@@ -104,10 +99,10 @@ class V2rayNG
             "type" => $server['network'],
             "encryption" => "none",
             "flow" => !empty($server['flow']) ? $server['flow'] : "",
-            "pbk" => ((int)$server['tls'] === 2) ? $server['tlsSettings']['public_key'] : "",
-            "sni" => !empty($server['tlsSettings']['serverName']) ? $server['tlsSettings']['serverName'] : "",
+            "pbk" => ((int)$server['tls'] === 2) ? $server['tls_settings']['public_key'] : "",
+            "sni" => !empty($server['tls_settings']['server_name']) ? $server['tls_settings']['server_name'] : "",
             "fp" => "chrome",
-            "sid" => ((int)$server['tls'] === 2) ? $server['tlsSettings']['short_id'] : "",
+            "sid" => ((int)$server['tls'] === 2) ? $server['tls_settings']['short_id'] : "",
         ];
 
         $output = "vless://" . $uuid . "@" . $config['add'] . ":" . $config['port'];

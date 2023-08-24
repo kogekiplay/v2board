@@ -113,7 +113,7 @@ class General
             "pbk" => ((int)$server['tls'] === 2) ? $server['tls_settings']['public_key'] : "",
             "sni" => !empty($server['tls_settings']['server_name']) ? $server['tls_settings']['server_name'] : "",
             "fp" => "chrome",
-            "sid" => $server['tls_settings']['short_id']
+            "sid" => ((int)$server['tls'] === 2) ? $server['tls_settings']['short_id'] : "",
         ];
 
         $output = "vless://" . $uuid . "@" . $config['add'] . ":" . $config['port'];
