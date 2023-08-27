@@ -86,36 +86,10 @@ class Shadowrocket
             }
         }
         if ($server['network'] === 'tcp') {
-            if ($server['network_settings']) {
-                $tcpSettings = $server['network_settings'];
-                if (isset($tcpSettings['header']['type']) && !empty($tcpSettings['header']['type']))
-                    $config['obfs'] = $tcpSettings['header']['type'];
-                if (isset($tcpSettings['header']['request']['path'][0]) && !empty($tcpSettings['header']['request']['path'][0]))
-                    $config['path'] = $tcpSettings['header']['request']['path'][0];
-            }
-        }
-        if ($server['network'] === 'ws') {
-            $config['obfs'] = "websocket";
-            if ($server['network_settings']) {
-                $wsSettings = $server['network_settings'];
-                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
-                    $config['path'] = $wsSettings['path'];
-                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
-                    $config['obfsParam'] = $wsSettings['headers']['Host'];
-            }
+            $config['obfs'] = "none";
         }
         if ($server['network'] === 'grpc') {
             $config['obfs'] = "grpc";
-            if ($server['network_settings']) {
-                $grpcSettings = $server['network_settings'];
-                if (isset($grpcSettings['serviceName']) && !empty($grpcSettings['serviceName']))
-                    $config['path'] = $grpcSettings['serviceName'];
-            }
-            if (isset($tls_settings)) {
-                $config['host'] = $tls_settings['serverName'];
-            } else {
-                $config['host'] = $server['host'];
-            }
         }
         $query = http_build_query($config, '', '&', PHP_QUERY_RFC3986);
         $uri = "vmess://{$userinfo}?{$query}";
@@ -131,7 +105,7 @@ class Shadowrocket
         $config = [
             'tfo' => 1,
             'remark' => $server['name'],
-            'xtls' => ((int) $server['tls']),
+            'xtls' => !empty($server['flow']) ? 2 : 0,
             'pbk' => ((int) $server['tls'] === 2) ? $server['tls_settings']['public_key'] : "",
             'sid' => $server['tls_settings']['short_id'],
         ];
@@ -143,38 +117,6 @@ class Shadowrocket
                     $config['allowInsecure'] = (int) $tls_settings['allowInsecure'];
                 if (!empty($tls_settings['server_name']))
                     $config['peer'] = $tls_settings['server_name'];
-            }
-        }
-        if ($server['network'] === 'tcp') {
-            if ($server['network_settings']) {
-                $tcpSettings = $server['network_settings'];
-                if (isset($tcpSettings['header']['type']) && !empty($tcpSettings['header']['type']))
-                    $config['obfs'] = $tcpSettings['header']['type'];
-                if (isset($tcpSettings['header']['request']['path'][0]) && !empty($tcpSettings['header']['request']['path'][0]))
-                    $config['path'] = $tcpSettings['header']['request']['path'][0];
-            }
-        }
-        if ($server['network'] === 'ws') {
-            $config['obfs'] = "websocket";
-            if ($server['network_settings']) {
-                $wsSettings = $server['network_settings'];
-                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
-                    $config['path'] = $wsSettings['path'];
-                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
-                    $config['obfsParam'] = $wsSettings['headers']['Host'];
-            }
-        }
-        if ($server['network'] === 'grpc') {
-            $config['obfs'] = "grpc";
-            if ($server['network_settings']) {
-                $grpcSettings = $server['network_settings'];
-                if (isset($grpcSettings['serviceName']) && !empty($grpcSettings['serviceName']))
-                    $config['path'] = $grpcSettings['serviceName'];
-            }
-            if (isset($tls_settings)) {
-                $config['host'] = $tls_settings['serverName'];
-            } else {
-                $config['host'] = $server['host'];
             }
         }
 
