@@ -23,9 +23,9 @@ class Shadowrocket
 
         $uri = '';
         //display remaining traffic and expire date
-        $upload = round($user['u'] / (1024*1024*1024), 2);
-        $download = round($user['d'] / (1024*1024*1024), 2);
-        $totalTraffic = round($user['transfer_enable'] / (1024*1024*1024), 2);
+        $upload = round($user['u'] / (1024 * 1024 * 1024), 2);
+        $download = round($user['d'] / (1024 * 1024 * 1024), 2);
+        $totalTraffic = round($user['transfer_enable'] / (1024 * 1024 * 1024), 2);
         $expiredDate = date('Y-m-d', $user['expired_at']);
         $uri .= "STATUS=🚀↑:{$upload}GB,↓:{$download}GB,TOT:{$totalTraffic}GB💡Expires:{$expiredDate}\r\n";
         foreach ($servers as $item) {
@@ -80,7 +80,7 @@ class Shadowrocket
             if ($server['tls_settings']) {
                 $tls_settings = $server['tls_settings'];
                 if (isset($tls_settings['allowInsecure']) && !empty($tls_settings['allowInsecure']))
-                    $config['allowInsecure'] = (int)$tls_settings['allowInsecure'];
+                    $config['allowInsecure'] = (int) $tls_settings['allowInsecure'];
                 if (isset($tls_settings['serverName']) && !empty($tls_settings['serverName']))
                     $config['peer'] = $tls_settings['serverName'];
             }
@@ -131,8 +131,8 @@ class Shadowrocket
         $config = [
             'tfo' => 1,
             'remark' => $server['name'],
-            'xtls' => ((int)$server['tls']),
-            'pbk' => ((int)$server['tls'] === 2) ? $server['tls_settings']['public_key'] : "",
+            'xtls' => ((int) $server['tls']),
+            'pbk' => ((int) $server['tls'] === 2) ? $server['tls_settings']['public_key'] : "",
             'sid' => $server['tls_settings']['short_id'],
         ];
         if ($server['tls']) {
@@ -140,9 +140,41 @@ class Shadowrocket
             if ($server['tls_settings']) {
                 $tls_settings = $server['tls_settings'];
                 if (!empty($tls_settings['allowInsecure']))
-                    $config['allowInsecure'] = (int)$tls_settings['allowInsecure'];
+                    $config['allowInsecure'] = (int) $tls_settings['allowInsecure'];
                 if (!empty($tls_settings['server_name']))
                     $config['peer'] = $tls_settings['server_name'];
+            }
+        }
+        if ($server['network'] === 'tcp') {
+            if ($server['network_settings']) {
+                $tcpSettings = $server['network_settings'];
+                if (isset($tcpSettings['header']['type']) && !empty($tcpSettings['header']['type']))
+                    $config['obfs'] = $tcpSettings['header']['type'];
+                if (isset($tcpSettings['header']['request']['path'][0]) && !empty($tcpSettings['header']['request']['path'][0]))
+                    $config['path'] = $tcpSettings['header']['request']['path'][0];
+            }
+        }
+        if ($server['network'] === 'ws') {
+            $config['obfs'] = "websocket";
+            if ($server['network_settings']) {
+                $wsSettings = $server['network_settings'];
+                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
+                    $config['path'] = $wsSettings['path'];
+                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
+                    $config['obfsParam'] = $wsSettings['headers']['Host'];
+            }
+        }
+        if ($server['network'] === 'grpc') {
+            $config['obfs'] = "grpc";
+            if ($server['network_settings']) {
+                $grpcSettings = $server['network_settings'];
+                if (isset($grpcSettings['serviceName']) && !empty($grpcSettings['serviceName']))
+                    $config['path'] = $grpcSettings['serviceName'];
+            }
+            if (isset($tls_settings)) {
+                $config['host'] = $tls_settings['serverName'];
+            } else {
+                $config['host'] = $server['host'];
             }
         }
 
