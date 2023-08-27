@@ -41,6 +41,9 @@ class Shadowrocket
             if ($item['type'] === 'trojan') {
                 $uri .= self::buildTrojan($user['uuid'], $item);
             }
+            if ($item['type'] === 'hysteria') {
+                $uri .= self::buildHysteria($user['uuid'], $item);
+            }
         }
         return base64_encode($uri);
     }
@@ -86,10 +89,36 @@ class Shadowrocket
             }
         }
         if ($server['network'] === 'tcp') {
-            $config['obfs'] = "none";
+            if ($server['network_settings']) {
+                $tcpSettings = $server['network_settings'];
+                if (isset($tcpSettings['header']['type']) && !empty($tcpSettings['header']['type']))
+                    $config['obfs'] = $tcpSettings['header']['type'];
+                if (isset($tcpSettings['header']['request']['path'][0]) && !empty($tcpSettings['header']['request']['path'][0]))
+                    $config['path'] = $tcpSettings['header']['request']['path'][0];
+            }
+        }
+        if ($server['network'] === 'ws') {
+            $config['obfs'] = "websocket";
+            if ($server['network_settings']) {
+                $wsSettings = $server['network_settings'];
+                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
+                    $config['path'] = $wsSettings['path'];
+                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
+                    $config['obfsParam'] = $wsSettings['headers']['Host'];
+            }
         }
         if ($server['network'] === 'grpc') {
             $config['obfs'] = "grpc";
+            if ($server['network_settings']) {
+                $grpcSettings = $server['network_settings'];
+                if (isset($grpcSettings['serviceName']) && !empty($grpcSettings['serviceName']))
+                    $config['path'] = $grpcSettings['serviceName'];
+            }
+            if (isset($tls_settings)) {
+                $config['host'] = $tls_settings['serverName'];
+            } else {
+                $config['host'] = $server['host'];
+            }
         }
         $query = http_build_query($config, '', '&', PHP_QUERY_RFC3986);
         $uri = "vmess://{$userinfo}?{$query}";
@@ -119,8 +148,12 @@ class Shadowrocket
                     $config['peer'] = $tls_settings['server_name'];
             }
         }
-
-
+        if ($server['network'] === 'tcp') {
+            $config['obfs'] = "none";
+        }
+        if ($server['network'] === 'grpc') {
+            $config['obfs'] = "grpc";
+        }
         $query = http_build_query($config, '', '&', PHP_QUERY_RFC3986);
         $uri = "vless://{$userinfo}?{$query}";
         $uri .= "\r\n";
@@ -135,6 +168,26 @@ class Shadowrocket
             'peer' => $server['server_name']
         ]);
         $uri = "trojan://{$password}@{$server['host']}:{$server['port']}?{$query}&tfo=1#{$name}";
+        $uri .= "\r\n";
+        return $uri;
+    }
+
+    public static function buildHysteria($password, $server)
+    {
+        $name = rawurlencode($server['name']);
+        $query = http_build_query([
+            'protocol' => 'udp',
+            'auth' => $password,
+            'insecure' => $server['insecure'],
+            'peer' => $server['server_name'],
+            'upmbps' => $server['up_mbps'],
+            'downmbps' => $server['down_mbps'],
+            'obfs' => 'xplus',
+            'obfsParam' => $server['server_key'],
+            'mport' => '30000-40000',
+            'fastopen' => '1',
+        ]);
+        $uri = "hysteria://{$server['host']}:{$server['port']}?{$query}#{$name}";
         $uri .= "\r\n";
         return $uri;
     }
