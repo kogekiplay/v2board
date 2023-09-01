@@ -93,7 +93,7 @@ class UniProxyController extends Controller
                     'network' => $this->nodeInfo->network,
                     'network_settings' => $this->nodeInfo->network_settings,
                     'tls' => $this->nodeInfo->tls,
-                    'tls_settings' => $this->nodeInfo->tls_sttings
+                    'tls_settings' => $this->nodeInfo->tls_settings
                 ];
                 break;
             case "vless":
