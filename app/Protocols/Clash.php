@@ -25,7 +25,7 @@ class Clash
         $appName = config('v2board.app_name', 'V2Board');
         header("subscription-userinfo: upload={$user['u']}; download={$user['d']}; total={$user['transfer_enable']}; expire={$user['expired_at']}");
         header('profile-update-interval: 24');
-        header("content-disposition:attachment;filename*=UTF-8''".rawurlencode($appName));
+        header("content-disposition:attachment;filename*=UTF-8''" . rawurlencode($appName));
         header("profile-web-page-url:" . config('v2board.app_url'));
         $defaultConfig = base_path() . '/resources/rules/default.clash.yaml';
         $customConfig = base_path() . '/resources/rules/custom.clash.yaml';
@@ -38,7 +38,8 @@ class Clash
         $proxies = [];
 
         foreach ($servers as $item) {
-            if ($item['type'] === 'shadowsocks'
+            if (
+                $item['type'] === 'shadowsocks'
                 && in_array($item['cipher'], [
                     'aes-128-gcm',
                     'aes-192-gcm',
@@ -54,10 +55,10 @@ class Clash
                 array_push($proxies, $item['name']);
             }
 
-            if ($item['type'] === 'vless') {
-                array_push($proxy, self::buildVless($user['uuid'], $item));
-                array_push($proxies, $item['name']);
-            }
+            // if ($item['type'] === 'vless') {
+            //     array_push($proxy, self::buildVless($user['uuid'], $item));
+            //     array_push($proxies, $item['name']);
+            // }
 
             if ($item['type'] === 'trojan') {
                 array_push($proxy, self::buildTrojan($user['uuid'], $item));
@@ -67,24 +68,28 @@ class Clash
 
         $config['proxies'] = array_merge($config['proxies'] ? $config['proxies'] : [], $proxy);
         foreach ($config['proxy-groups'] as $k => $v) {
-            if (!is_array($config['proxy-groups'][$k]['proxies'])) $config['proxy-groups'][$k]['proxies'] = [];
+            if (!is_array($config['proxy-groups'][$k]['proxies']))
+                $config['proxy-groups'][$k]['proxies'] = [];
             $isFilter = false;
             foreach ($config['proxy-groups'][$k]['proxies'] as $src) {
                 foreach ($proxies as $dst) {
-                    if (!$this->isRegex($src)) continue;
+                    if (!$this->isRegex($src))
+                        continue;
                     $isFilter = true;
                     $config['proxy-groups'][$k]['proxies'] = array_values(array_diff($config['proxy-groups'][$k]['proxies'], [$src]));
                     if ($this->isMatch($src, $dst)) {
                         array_push($config['proxy-groups'][$k]['proxies'], $dst);
                     }
                 }
-                if ($isFilter) continue;
+                if ($isFilter)
+                    continue;
             }
-            if ($isFilter) continue;
+            if ($isFilter)
+                continue;
             $config['proxy-groups'][$k]['proxies'] = array_merge($config['proxy-groups'][$k]['proxies'], $proxies);
         }
 
-        $config['proxy-groups'] = array_filter($config['proxy-groups'], function($group) {
+        $config['proxy-groups'] = array_filter($config['proxy-groups'], function ($group) {
             return $group['proxies'];
         });
         $config['proxy-groups'] = array_values($config['proxy-groups']);
@@ -136,8 +141,10 @@ class Clash
         }
         if ($server['network'] === 'tcp') {
             $tcpSettings = $server['network_settings'];
-            if (isset($tcpSettings['header']['type'])) $array['network'] = $tcpSettings['header']['type'];
-            if (isset($tcpSettings['header']['request']['path'][0])) $array['http-opts']['path'] = $tcpSettings['header']['request']['path'][0];
+            if (isset($tcpSettings['header']['type']))
+                $array['network'] = $tcpSettings['header']['type'];
+            if (isset($tcpSettings['header']['request']['path'][0]))
+                $array['http-opts']['path'] = $tcpSettings['header']['request']['path'][0];
         }
         if ($server['network'] === 'ws') {
             $array['network'] = 'ws';
@@ -159,45 +166,46 @@ class Clash
             if ($server['network_settings']) {
                 $grpcSettings = $server['network_settings'];
                 $array['grpc-opts'] = [];
-                if (isset($grpcSettings['serviceName'])) $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
+                if (isset($grpcSettings['serviceName']))
+                    $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
             }
         }
 
         return $array;
     }
 
-    public static function buildVless($uuid, $server)
-    {
-        $array = [];
-        $array['name'] = $server['name'];
-        $array['type'] = 'vless';
-        $array['server'] = $server['host'];
-        $array['port'] = $server['port'];
-        $array['uuid'] = $uuid;
-        $array['udp'] = true;
-        $array['xudp'] = true;
-        $array['flow'] = !empty($server['flow']) ? $server['flow']: "";
-        if ($server['tls']) {
-            $array['tls'] = true;
-            if ($server['tls_settings']) {
-                $tls_settings = $server['tls_settings'];
-                if (!empty($tls_settings['allowInsecure']))
-                    $array['skip-cert-verify'] = (bool)$tls_settings['allowInsecure'];
-                if (!empty($tls_settings['server_name']))
-                    $array['servername'] = $tls_settings['server_name'];
-                if ((int)$server['tls'] === 2) {
-                    $publicKey = $tls_settings['public_key'];
-                    $shortID = $tls_settings['short_id'];
-                    $array['reality-opts'] = [
-                        'public-key' => $publicKey,
-                        'short-id' => $shortID
-                    ];
-                    $array['client-fingerprint'] = 'chrome';
-                }
-            }
-        }
-        return $array;
-    }
+    // public static function buildVless($uuid, $server)
+    // {
+    //     $array = [];
+    //     $array['name'] = $server['name'];
+    //     $array['type'] = 'vless';
+    //     $array['server'] = $server['host'];
+    //     $array['port'] = $server['port'];
+    //     $array['uuid'] = $uuid;
+    //     $array['udp'] = true;
+    //     $array['xudp'] = true;
+    //     $array['flow'] = !empty($server['flow']) ? $server['flow']: "";
+    //     if ($server['tls']) {
+    //         $array['tls'] = true;
+    //         if ($server['tls_settings']) {
+    //             $tls_settings = $server['tls_settings'];
+    //             if (!empty($tls_settings['allowInsecure']))
+    //                 $array['skip-cert-verify'] = (bool)$tls_settings['allowInsecure'];
+    //             if (!empty($tls_settings['server_name']))
+    //                 $array['servername'] = $tls_settings['server_name'];
+    //             if ((int)$server['tls'] === 2) {
+    //                 $publicKey = $tls_settings['public_key'];
+    //                 $shortID = $tls_settings['short_id'];
+    //                 $array['reality-opts'] = [
+    //                     'public-key' => $publicKey,
+    //                     'short-id' => $shortID
+    //                 ];
+    //                 $array['client-fingerprint'] = 'chrome';
+    //             }
+    //         }
+    //     }
+    //     return $array;
+    // }
 
     public static function buildTrojan($password, $server)
     {
@@ -208,8 +216,10 @@ class Clash
         $array['port'] = $server['port'];
         $array['password'] = $password;
         $array['udp'] = true;
-        if (!empty($server['server_name'])) $array['sni'] = $server['server_name'];
-        if (!empty($server['allow_insecure'])) $array['skip-cert-verify'] = ($server['allow_insecure'] ? true : false);
+        if (!empty($server['server_name']))
+            $array['sni'] = $server['server_name'];
+        if (!empty($server['allow_insecure']))
+            $array['skip-cert-verify'] = ($server['allow_insecure'] ? true : false);
         return $array;
     }
 
